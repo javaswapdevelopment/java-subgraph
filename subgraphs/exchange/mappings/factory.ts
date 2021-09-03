@@ -1,5 +1,5 @@
 /* eslint-disable prefer-const */
-import { PancakeFactory, Pair, Token, Bundle } from "../generated/schema";
+import { JavaFactory, Pair, Token, Bundle } from "../generated/schema";
 import { Pair as PairTemplate } from "../generated/templates";
 import { PairCreated } from "../generated/Factory/Factory";
 import {
@@ -13,19 +13,19 @@ import {
 } from "./utils";
 
 export function handlePairCreated(event: PairCreated): void {
-  let factory = PancakeFactory.load(FACTORY_ADDRESS);
+  let factory = JavaFactory.load(FACTORY_ADDRESS);
   if (factory === null) {
-    factory = new PancakeFactory(FACTORY_ADDRESS);
+    factory = new JavaFactory(FACTORY_ADDRESS);
     factory.totalPairs = ZERO_BI;
     factory.totalTransactions = ZERO_BI;
-    factory.totalVolumeBNB = ZERO_BD;
-    factory.totalLiquidityBNB = ZERO_BD;
+    factory.totalVolumeMATIC = ZERO_BD;
+    factory.totalLiquidityMATIC = ZERO_BD;
     factory.totalVolumeUSD = ZERO_BD;
     factory.untrackedVolumeUSD = ZERO_BD;
     factory.totalLiquidityUSD = ZERO_BD;
 
     let bundle = new Bundle("1");
-    bundle.bnbPrice = ZERO_BD;
+    bundle.maticPrice = ZERO_BD;
     bundle.save();
   }
   factory.totalPairs = factory.totalPairs.plus(ONE_BI);
@@ -41,7 +41,7 @@ export function handlePairCreated(event: PairCreated): void {
       return;
     }
     token0.decimals = decimals;
-    token0.derivedBNB = ZERO_BD;
+    token0.derivedMATIC = ZERO_BD;
     token0.derivedUSD = ZERO_BD;
     token0.tradeVolume = ZERO_BD;
     token0.tradeVolumeUSD = ZERO_BD;
@@ -61,7 +61,7 @@ export function handlePairCreated(event: PairCreated): void {
       return;
     }
     token1.decimals = decimals;
-    token1.derivedBNB = ZERO_BD;
+    token1.derivedMATIC = ZERO_BD;
     token1.derivedUSD = ZERO_BD;
     token1.tradeVolume = ZERO_BD;
     token1.tradeVolumeUSD = ZERO_BD;
@@ -78,8 +78,8 @@ export function handlePairCreated(event: PairCreated): void {
   pair.totalTransactions = ZERO_BI;
   pair.reserve0 = ZERO_BD;
   pair.reserve1 = ZERO_BD;
-  pair.trackedReserveBNB = ZERO_BD;
-  pair.reserveBNB = ZERO_BD;
+  pair.trackedReserveMATIC = ZERO_BD;
+  pair.reserveMATIC = ZERO_BD;
   pair.reserveUSD = ZERO_BD;
   pair.totalSupply = ZERO_BD;
   pair.volumeToken0 = ZERO_BD;

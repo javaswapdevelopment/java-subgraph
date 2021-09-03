@@ -23,7 +23,7 @@ export function handleLotteryOpen(event: LotteryOpen): void {
   lottery.status = "Open";
   lottery.startTime = event.params.startTime;
   lottery.endTime = event.params.endTime;
-  lottery.ticketPrice = toBigDecimal(event.params.priceTicketInCake);
+  lottery.ticketPrice = toBigDecimal(event.params.priceTicketInJava);
   lottery.firstTicket = event.params.firstTicketId;
   lottery.block = event.block.number;
   lottery.timestamp = event.block.timestamp;
@@ -63,13 +63,13 @@ export function handleTicketsPurchase(event: TicketsPurchase): void {
     user = new User(event.params.buyer.toHex());
     user.totalRounds = ZERO_BI;
     user.totalTickets = ZERO_BI;
-    user.totalCake = ZERO_BD;
+    user.totalJava = ZERO_BD;
     user.block = event.block.number;
     user.timestamp = event.block.timestamp;
     user.save();
   }
   user.totalTickets = user.totalTickets.plus(event.params.numberTickets);
-  user.totalCake = user.totalCake.plus(event.params.numberTickets.toBigDecimal().times(lottery.ticketPrice));
+  user.totalJava = user.totalJava.plus(event.params.numberTickets.toBigDecimal().times(lottery.ticketPrice));
   user.save();
 
   let roundId = concat(
@@ -105,7 +105,7 @@ export function handleTicketsClaim(event: TicketsClaim): void {
 
   let user = User.load(event.params.claimer.toHex());
   if (user !== null) {
-    user.totalCake = user.totalCake.plus(toBigDecimal(event.params.amount));
+    user.totalJava = user.totalJava.plus(toBigDecimal(event.params.amount));
     user.save();
   }
 

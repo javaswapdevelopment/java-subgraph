@@ -1,15 +1,15 @@
 specVersion: 0.0.2
-description: Binance Smart Chain Blocks
-repository: https://github.com/pancakeswap
+description: Polygon Chain Blocks
+repository: https://github.com/javaswapdevelopment
 schema:
   file: ./schema.graphql
 dataSources:
   - kind: ethereum/contract
-    name: BSCValidatorSet
-    network: bsc
+    name: ConverterRegistryContract
+    network: matic
     source:
-      address: '0x0000000000000000000000000000000000001000'
-      abi: BSCValidatorSet
+      address: '0x450BaD1361e400572f41233483B32110b0cb3e02'
+      abi: ConverterRegistryContract
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.4
@@ -18,7 +18,7 @@ dataSources:
       entities:
         - Block
       abis:
-        - name: BSCValidatorSet
-          file: ./abis/BSCValidatorSet.json
+        - name: ConverterRegistryContract
+          file: ./abis/ConverterRegistryContract.json
       blockHandlers:
         - handler: handleBlock

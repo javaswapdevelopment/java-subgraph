@@ -3,7 +3,7 @@ import { BigInt, BigDecimal, store } from "@graphprotocol/graph-ts";
 import {
   Pair,
   Token,
-  PancakeFactory,
+  JavaFactory,
   Transaction,
   Mint as MintEvent,
   Burn as BurnEvent,
@@ -11,8 +11,8 @@ import {
   Bundle,
 } from "../generated/schema";
 import { Mint, Burn, Swap, Transfer, Sync } from "../generated/templates/Pair/Pair";
-import { updatePairDayData, updateTokenDayData, updatePancakeDayData, updatePairHourData } from "./dayUpdates";
-import { getBnbPriceInUSD, findBnbPerToken, getTrackedVolumeUSD, getTrackedLiquidityUSD } from "./pricing";
+import { updatePairDayData, updateTokenDayData, updateJavaDayData, updatePairHourData } from "./dayUpdates";
+import { getMaticPriceInUSD, findMaticPerToken, getTrackedVolumeUSD, getTrackedLiquidityUSD } from "./pricing";
 import { convertTokenToDecimal, ADDRESS_ZERO, FACTORY_ADDRESS, ONE_BI, ZERO_BD, BI_18 } from "./utils";
 
 function isCompleteMint(mintId: string): boolean {
@@ -70,7 +70,7 @@ export function handleTransfer(event: Transfer): void {
     }
   }
 
-  // case where direct send first on BNB withdrawals
+  // case where direct send first on MATIC withdrawals
   if (event.params.to.toHex() == pair.id) {
     let burns = transaction.burns;
     let burn = new BurnEvent(
@@ -165,10 +165,10 @@ export function handleSync(event: Sync): void {
   let pair = Pair.load(event.address.toHex());
   let token0 = Token.load(pair.token0);
   let token1 = Token.load(pair.token1);
-  let pancake = PancakeFactory.load(FACTORY_ADDRESS);
+  let java = JavaFactory.load(FACTORY_ADDRESS);
 
   // reset factory liquidity by subtracting only tracked liquidity
-  pancake.totalLiquidityBNB = pancake.totalLiquidityBNB.minus(pair.trackedReserveBNB as BigDecimal);
+  java.totalLiquidityMATIC = java.totalLiquidityMATIC.minus(pair.trackedReserveMATIC as BigDecimal);
 
   // reset token total liquidity amounts
   token0.totalLiquidity = token0.totalLiquidity.minus(pair.reserve0);
@@ -183,43 +183,43 @@ export function handleSync(event: Sync): void {
   else pair.token1Price = ZERO_BD;
 
   let bundle = Bundle.load("1");
-  bundle.bnbPrice = getBnbPriceInUSD();
+  bundle.maticPrice = getMaticPriceInUSD();
   bundle.save();
 
-  let t0DerivedBNB = findBnbPerToken(token0 as Token);
-  token0.derivedBNB = t0DerivedBNB;
-  token0.derivedUSD = t0DerivedBNB.times(bundle.bnbPrice);
+  let t0DerivedMATIC = findMaticPerToken(token0 as Token);
+  token0.derivedMATIC = t0DerivedMATIC;
+  token0.derivedUSD = t0DerivedMATIC.times(bundle.maticPrice);
   token0.save();
 
-  let t1DerivedBNB = findBnbPerToken(token1 as Token);
-  token1.derivedBNB = t1DerivedBNB;
-  token1.derivedUSD = t1DerivedBNB.times(bundle.bnbPrice);
+  let t1DerivedMATIC = findMaticPerToken(token1 as Token);
+  token1.derivedMATIC = t1DerivedMATIC;
+  token1.derivedUSD = t1DerivedMATIC.times(bundle.maticPrice);
   token1.save();
 
   // get tracked liquidity - will be 0 if neither is in whitelist
-  let trackedLiquidityBNB: BigDecimal;
-  if (bundle.bnbPrice.notEqual(ZERO_BD)) {
-    trackedLiquidityBNB = getTrackedLiquidityUSD(
+  let trackedLiquidityMATIC: BigDecimal;
+  if (bundle.maticPrice.notEqual(ZERO_BD)) {
+    trackedLiquidityMATIC = getTrackedLiquidityUSD(
       bundle as Bundle,
       pair.reserve0,
       token0 as Token,
       pair.reserve1,
       token1 as Token
-    ).div(bundle.bnbPrice);
+    ).div(bundle.maticPrice);
   } else {
-    trackedLiquidityBNB = ZERO_BD;
+    trackedLiquidityMATIC = ZERO_BD;
   }
 
   // use derived amounts within pair
-  pair.trackedReserveBNB = trackedLiquidityBNB;
-  pair.reserveBNB = pair.reserve0
-    .times(token0.derivedBNB as BigDecimal)
-    .plus(pair.reserve1.times(token1.derivedBNB as BigDecimal));
-  pair.reserveUSD = pair.reserveBNB.times(bundle.bnbPrice);
+  pair.trackedReserveMATIC = trackedLiquidityMATIC;
+  pair.reserveMATIC = pair.reserve0
+    .times(token0.derivedMATIC as BigDecimal)
+    .plus(pair.reserve1.times(token1.derivedMATIC as BigDecimal));
+  pair.reserveUSD = pair.reserveMATIC.times(bundle.maticPrice);
 
   // use tracked amounts globally
-  pancake.totalLiquidityBNB = pancake.totalLiquidityBNB.plus(trackedLiquidityBNB);
-  pancake.totalLiquidityUSD = pancake.totalLiquidityBNB.times(bundle.bnbPrice);
+  java.totalLiquidityMATIC = java.totalLiquidityMATIC.plus(trackedLiquidityMATIC);
+  java.totalLiquidityUSD = java.totalLiquidityMATIC.times(bundle.maticPrice);
 
   // now correctly set liquidity amounts for each token
   token0.totalLiquidity = token0.totalLiquidity.plus(pair.reserve0);
@@ -227,7 +227,7 @@ export function handleSync(event: Sync): void {
 
   // save entities
   pair.save();
-  pancake.save();
+  java.save();
   token0.save();
   token1.save();
 }
@@ -238,7 +238,7 @@ export function handleMint(event: Mint): void {
   let mint = MintEvent.load(mints[mints.length - 1]);
 
   let pair = Pair.load(event.address.toHex());
-  let pancake = PancakeFactory.load(FACTORY_ADDRESS);
+  let java = JavaFactory.load(FACTORY_ADDRESS);
 
   let token0 = Token.load(pair.token0);
   let token1 = Token.load(pair.token1);
@@ -251,22 +251,22 @@ export function handleMint(event: Mint): void {
   token0.totalTransactions = token0.totalTransactions.plus(ONE_BI);
   token1.totalTransactions = token1.totalTransactions.plus(ONE_BI);
 
-  // get new amounts of USD and BNB for tracking
+  // get new amounts of USD and MATIC for tracking
   let bundle = Bundle.load("1");
-  let amountTotalUSD = token1.derivedBNB
+  let amountTotalUSD = token1.derivedMATIC
     .times(token1Amount)
-    .plus(token0.derivedBNB.times(token0Amount))
-    .times(bundle.bnbPrice);
+    .plus(token0.derivedMATIC.times(token0Amount))
+    .times(bundle.maticPrice);
 
   // update txn counts
   pair.totalTransactions = pair.totalTransactions.plus(ONE_BI);
-  pancake.totalTransactions = pancake.totalTransactions.plus(ONE_BI);
+  java.totalTransactions = java.totalTransactions.plus(ONE_BI);
 
   // save entities
   token0.save();
   token1.save();
   pair.save();
-  pancake.save();
+  java.save();
 
   mint.sender = event.params.sender;
   mint.amount0 = token0Amount as BigDecimal;
@@ -277,7 +277,7 @@ export function handleMint(event: Mint): void {
 
   updatePairDayData(event);
   updatePairHourData(event);
-  updatePancakeDayData(event);
+  updateJavaDayData(event);
   updateTokenDayData(token0 as Token, event);
   updateTokenDayData(token1 as Token, event);
 }
@@ -292,7 +292,7 @@ export function handleBurn(event: Burn): void {
   let burn = BurnEvent.load(burns[burns.length - 1]);
 
   let pair = Pair.load(event.address.toHex());
-  let pancake = PancakeFactory.load(FACTORY_ADDRESS);
+  let java = JavaFactory.load(FACTORY_ADDRESS);
 
   //update token info
   let token0 = Token.load(pair.token0);
@@ -304,22 +304,22 @@ export function handleBurn(event: Burn): void {
   token0.totalTransactions = token0.totalTransactions.plus(ONE_BI);
   token1.totalTransactions = token1.totalTransactions.plus(ONE_BI);
 
-  // get new amounts of USD and BNB for tracking
+  // get new amounts of USD and MATIC for tracking
   let bundle = Bundle.load("1");
-  let amountTotalUSD = token1.derivedBNB
+  let amountTotalUSD = token1.derivedMATIC
     .times(token1Amount)
-    .plus(token0.derivedBNB.times(token0Amount))
-    .times(bundle.bnbPrice);
+    .plus(token0.derivedMATIC.times(token0Amount))
+    .times(bundle.maticPrice);
 
   // update txn counts
-  pancake.totalTransactions = pancake.totalTransactions.plus(ONE_BI);
+  java.totalTransactions = java.totalTransactions.plus(ONE_BI);
   pair.totalTransactions = pair.totalTransactions.plus(ONE_BI);
 
   // update global counter and save
   token0.save();
   token1.save();
   pair.save();
-  pancake.save();
+  java.save();
 
   // update burn
   // burn.sender = event.params.sender
@@ -332,7 +332,7 @@ export function handleBurn(event: Burn): void {
 
   updatePairDayData(event);
   updatePairHourData(event);
-  updatePancakeDayData(event);
+  updateJavaDayData(event);
   updateTokenDayData(token0 as Token, event);
   updateTokenDayData(token1 as Token, event);
 }
@@ -350,15 +350,15 @@ export function handleSwap(event: Swap): void {
   let amount0Total = amount0Out.plus(amount0In);
   let amount1Total = amount1Out.plus(amount1In);
 
-  // BNB/USD prices
+  // MATIC/USD prices
   let bundle = Bundle.load("1");
 
-  // get total amounts of derived USD and BNB for tracking
-  let derivedAmountBNB = token1.derivedBNB
+  // get total amounts of derived USD and MATIC for tracking
+  let derivedAmountMATIC = token1.derivedMATIC
     .times(amount1Total)
-    .plus(token0.derivedBNB.times(amount0Total))
+    .plus(token0.derivedMATIC.times(amount0Total))
     .div(BigDecimal.fromString("2"));
-  let derivedAmountUSD = derivedAmountBNB.times(bundle.bnbPrice);
+  let derivedAmountUSD = derivedAmountMATIC.times(bundle.maticPrice);
 
   // only accounts for volume through white listed tokens
   let trackedAmountUSD = getTrackedVolumeUSD(
@@ -369,11 +369,11 @@ export function handleSwap(event: Swap): void {
     token1 as Token
   );
 
-  let trackedAmountBNB: BigDecimal;
-  if (bundle.bnbPrice.equals(ZERO_BD)) {
-    trackedAmountBNB = ZERO_BD;
+  let trackedAmountMATIC: BigDecimal;
+  if (bundle.maticPrice.equals(ZERO_BD)) {
+    trackedAmountMATIC = ZERO_BD;
   } else {
-    trackedAmountBNB = trackedAmountUSD.div(bundle.bnbPrice);
+    trackedAmountMATIC = trackedAmountUSD.div(bundle.maticPrice);
   }
 
   // update token0 global volume and token liquidity stats
@@ -399,17 +399,17 @@ export function handleSwap(event: Swap): void {
   pair.save();
 
   // update global values, only used tracked amounts for volume
-  let pancake = PancakeFactory.load(FACTORY_ADDRESS);
-  pancake.totalVolumeUSD = pancake.totalVolumeUSD.plus(trackedAmountUSD);
-  pancake.totalVolumeBNB = pancake.totalVolumeBNB.plus(trackedAmountBNB);
-  pancake.untrackedVolumeUSD = pancake.untrackedVolumeUSD.plus(derivedAmountUSD);
-  pancake.totalTransactions = pancake.totalTransactions.plus(ONE_BI);
+  let java = JavaFactory.load(FACTORY_ADDRESS);
+  java.totalVolumeUSD = java.totalVolumeUSD.plus(trackedAmountUSD);
+  java.totalVolumeMATIC = java.totalVolumeMATIC.plus(trackedAmountMATIC);
+  java.untrackedVolumeUSD = java.untrackedVolumeUSD.plus(derivedAmountUSD);
+  java.totalTransactions = java.totalTransactions.plus(ONE_BI);
 
   // save entities
   pair.save();
   token0.save();
   token1.save();
-  pancake.save();
+  java.save();
 
   let transaction = Transaction.load(event.transaction.hash.toHex());
   if (transaction === null) {
@@ -451,15 +451,15 @@ export function handleSwap(event: Swap): void {
   // update day entities
   let pairDayData = updatePairDayData(event);
   let pairHourData = updatePairHourData(event);
-  let pancakeDayData = updatePancakeDayData(event);
+  let javaDayData = updateJavaDayData(event);
   let token0DayData = updateTokenDayData(token0 as Token, event);
   let token1DayData = updateTokenDayData(token1 as Token, event);
 
   // swap specific updating
-  pancakeDayData.dailyVolumeUSD = pancakeDayData.dailyVolumeUSD.plus(trackedAmountUSD);
-  pancakeDayData.dailyVolumeBNB = pancakeDayData.dailyVolumeBNB.plus(trackedAmountBNB);
-  pancakeDayData.dailyVolumeUntracked = pancakeDayData.dailyVolumeUntracked.plus(derivedAmountUSD);
-  pancakeDayData.save();
+  javaDayData.dailyVolumeUSD = javaDayData.dailyVolumeUSD.plus(trackedAmountUSD);
+  javaDayData.dailyVolumeMATIC = javaDayData.dailyVolumeMATIC.plus(trackedAmountMATIC);
+  javaDayData.dailyVolumeUntracked = javaDayData.dailyVolumeUntracked.plus(derivedAmountUSD);
+  javaDayData.save();
 
   // swap specific updating for pair
   pairDayData.dailyVolumeToken0 = pairDayData.dailyVolumeToken0.plus(amount0Total);
@@ -475,17 +475,17 @@ export function handleSwap(event: Swap): void {
 
   // swap specific updating for token0
   token0DayData.dailyVolumeToken = token0DayData.dailyVolumeToken.plus(amount0Total);
-  token0DayData.dailyVolumeBNB = token0DayData.dailyVolumeBNB.plus(amount0Total.times(token0.derivedBNB as BigDecimal));
+  token0DayData.dailyVolumeMATIC = token0DayData.dailyVolumeMATIC.plus(amount0Total.times(token0.derivedMATIC as BigDecimal));
   token0DayData.dailyVolumeUSD = token0DayData.dailyVolumeUSD.plus(
-    amount0Total.times(token0.derivedBNB as BigDecimal).times(bundle.bnbPrice)
+    amount0Total.times(token0.derivedMATIC as BigDecimal).times(bundle.maticPrice)
   );
   token0DayData.save();
 
   // swap specific updating
   token1DayData.dailyVolumeToken = token1DayData.dailyVolumeToken.plus(amount1Total);
-  token1DayData.dailyVolumeBNB = token1DayData.dailyVolumeBNB.plus(amount1Total.times(token1.derivedBNB as BigDecimal));
+  token1DayData.dailyVolumeMATIC = token1DayData.dailyVolumeMATIC.plus(amount1Total.times(token1.derivedMATIC as BigDecimal));
   token1DayData.dailyVolumeUSD = token1DayData.dailyVolumeUSD.plus(
-    amount1Total.times(token1.derivedBNB as BigDecimal).times(bundle.bnbPrice)
+    amount1Total.times(token1.derivedMATIC as BigDecimal).times(bundle.maticPrice)
   );
   token1DayData.save();
 }

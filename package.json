@@ -1,10 +1,10 @@
 {
-  "name": "pancake-subgraph",
-  "description": "PancakeSwap Subgraph",
-  "version": "2.0.0",
+  "name": "java-subgraph",
+  "description": "JavaSwap Subgraph",
+  "version": "1.0.0",
   "private": true,
-  "repository": "git@github.com:pancakeswap/pancake-subgraph.git",
-  "author": "PancakeSwap",
+  "repository": "git@github.com:javaswapdevelopment/java-subgraph.git",
+  "author": "JavaSwap",
   "license": "MIT",
   "workspaces": [
     "subgraphs/**/*"

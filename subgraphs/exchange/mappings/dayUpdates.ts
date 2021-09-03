@@ -1,31 +1,31 @@
 /* eslint-disable prefer-const */
 import { PairHourData } from "../generated/schema";
 import { BigInt, BigDecimal, ethereum } from "@graphprotocol/graph-ts";
-import { Pair, Bundle, Token, PancakeFactory, PancakeDayData, PairDayData, TokenDayData } from "../generated/schema";
+import { Pair, Bundle, Token, JavaFactory, JavaDayData, PairDayData, TokenDayData } from "../generated/schema";
 import { ONE_BI, ZERO_BD, ZERO_BI, FACTORY_ADDRESS } from "./utils";
 
-export function updatePancakeDayData(event: ethereum.Event): PancakeDayData {
-  let pancake = PancakeFactory.load(FACTORY_ADDRESS);
+export function updateJavaDayData(event: ethereum.Event): JavaDayData {
+  let java = JavaFactory.load(FACTORY_ADDRESS);
   let timestamp = event.block.timestamp.toI32();
   let dayID = timestamp / 86400;
   let dayStartTimestamp = dayID * 86400;
 
-  let pancakeDayData = PancakeDayData.load(dayID.toString());
-  if (pancakeDayData === null) {
-    pancakeDayData = new PancakeDayData(dayID.toString());
-    pancakeDayData.date = dayStartTimestamp;
-    pancakeDayData.dailyVolumeUSD = ZERO_BD;
-    pancakeDayData.dailyVolumeBNB = ZERO_BD;
-    pancakeDayData.totalVolumeUSD = ZERO_BD;
-    pancakeDayData.totalVolumeBNB = ZERO_BD;
-    pancakeDayData.dailyVolumeUntracked = ZERO_BD;
+  let javaDayData = JavaDayData.load(dayID.toString());
+  if (javaDayData === null) {
+    javaDayData = new JavaDayData(dayID.toString());
+    javaDayData.date = dayStartTimestamp;
+    javaDayData.dailyVolumeUSD = ZERO_BD;
+    javaDayData.dailyVolumeMATIC = ZERO_BD;
+    javaDayData.totalVolumeUSD = ZERO_BD;
+    javaDayData.totalVolumeMATIC = ZERO_BD;
+    javaDayData.dailyVolumeUntracked = ZERO_BD;
   }
-  pancakeDayData.totalLiquidityUSD = pancake.totalLiquidityUSD;
-  pancakeDayData.totalLiquidityBNB = pancake.totalLiquidityBNB;
-  pancakeDayData.totalTransactions = pancake.totalTransactions;
-  pancakeDayData.save();
+  javaDayData.totalLiquidityUSD = java.totalLiquidityUSD;
+  javaDayData.totalLiquidityMATIC = java.totalLiquidityMATIC;
+  javaDayData.totalTransactions = java.totalTransactions;
+  javaDayData.save();
 
-  return pancakeDayData as PancakeDayData;
+  return javaDayData as JavaDayData;
 }
 
 export function updatePairDayData(event: ethereum.Event): PairDayData {
@@ -94,17 +94,17 @@ export function updateTokenDayData(token: Token, event: ethereum.Event): TokenDa
     tokenDayData = new TokenDayData(tokenDayID);
     tokenDayData.date = dayStartTimestamp;
     tokenDayData.token = token.id;
-    tokenDayData.priceUSD = token.derivedBNB.times(bundle.bnbPrice);
+    tokenDayData.priceUSD = token.derivedMATIC.times(bundle.maticPrice);
     tokenDayData.dailyVolumeToken = ZERO_BD;
-    tokenDayData.dailyVolumeBNB = ZERO_BD;
+    tokenDayData.dailyVolumeMATIC = ZERO_BD;
     tokenDayData.dailyVolumeUSD = ZERO_BD;
     tokenDayData.dailyTxns = ZERO_BI;
     tokenDayData.totalLiquidityUSD = ZERO_BD;
   }
-  tokenDayData.priceUSD = token.derivedBNB.times(bundle.bnbPrice);
+  tokenDayData.priceUSD = token.derivedMATIC.times(bundle.maticPrice);
   tokenDayData.totalLiquidityToken = token.totalLiquidity;
-  tokenDayData.totalLiquidityBNB = token.totalLiquidity.times(token.derivedBNB as BigDecimal);
-  tokenDayData.totalLiquidityUSD = tokenDayData.totalLiquidityBNB.times(bundle.bnbPrice);
+  tokenDayData.totalLiquidityMATIC = token.totalLiquidity.times(token.derivedMATIC as BigDecimal);
+  tokenDayData.totalLiquidityUSD = tokenDayData.totalLiquidityMATIC.times(bundle.maticPrice);
   tokenDayData.dailyTxns = tokenDayData.dailyTxns.plus(ONE_BI);
   tokenDayData.save();
 

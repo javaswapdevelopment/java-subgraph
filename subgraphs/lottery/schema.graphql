@@ -6,7 +6,7 @@ enum Status {
 }
 
 """
-PancakeSwap Lottery
+JavaSwap Lottery
 """
 type Lottery @entity {
   "ID"
@@ -43,7 +43,7 @@ type User @entity {
   totalTickets: BigInt!
   rounds: [Round!]! @derivedFrom(field: "user")
 
-  totalCake: BigDecimal!
+  totalJava: BigDecimal!
 
   "Block number"
   block: BigInt!

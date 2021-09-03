@@ -1,16 +1,16 @@
 specVersion: 0.0.2
-description: PancakeSwap is a decentralized protocol for automated token exchange on Binance Smart Chain.
-repository: https://github.com/pancakeswap
+description: JavaSwap is a decentralized protocol for automated token exchange on Polygon Chain.
+repository: https://github.com/javaswapdevelopment
 schema:
   file: ./schema.graphql
 dataSources:
   - kind: ethereum/contract
     name: Factory
-    network: bsc
+    network: matic
     source:
-      address: '0xcA143Ce32Fe78f1f7019d7d551a6402fC5350c73'
+      address: '0x5E90De5C6Ef6542b29B1155669C8348f82174205'
       abi: Factory
-      startBlock: 6809737
+      startBlock: 18675120
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.4
@@ -34,7 +34,7 @@ dataSources:
 templates:
   - kind: ethereum/contract
     name: Pair
-    network: bsc
+    network: matic
     source:
       abi: Pair
     mapping:

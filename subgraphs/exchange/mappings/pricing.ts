@@ -3,28 +3,15 @@ import { BigDecimal, Address } from "@graphprotocol/graph-ts/index";
 import { Pair, Token, Bundle } from "../generated/schema";
 import { ZERO_BD, factoryContract, ADDRESS_ZERO, ONE_BD } from "./utils";
 
-let WMATIC_ADDRESS = "0xbb4cdb9cbd36b01bd1cbaebf2de08d9173bc095c";
-let BUSD_WMATIC_PAIR = "0x58f876857a02d6762e0101bb5c46a8c1ed44dc16"; // created block 589414
-let USDT_WMATIC_PAIR = "0x16b9a82891338f9ba80e2d6970fdda79d1eb0dae"; // created block 648115
+let WMATIC_ADDRESS = "0x0d500b1d8e8ef31e21c99d1db9a6444d3adf1270";
+let USDC_WMATIC_PAIR = "0x6471155E47D2C86e9808A6BEBe203960f5e32584"; 
 
 export function getMaticPriceInUSD(): BigDecimal {
   // fetch eth prices for each stablecoin
-  let usdtPair = Pair.load(USDT_WMATIC_PAIR); // usdt is token0
-  let busdPair = Pair.load(BUSD_WMATIC_PAIR); // busd is token1
+  let usdcPair = Pair.load(USDC_WMATIC_PAIR); // usdc is token1
 
-  if (busdPair !== null && usdtPair !== null) {
-    let totalLiquidityMATIC = busdPair.reserve0.plus(usdtPair.reserve1);
-    if (totalLiquidityMATIC.notEqual(ZERO_BD)) {
-      let busdWeight = busdPair.reserve0.div(totalLiquidityMATIC);
-      let usdtWeight = usdtPair.reserve1.div(totalLiquidityMATIC);
-      return busdPair.token1Price.times(busdWeight).plus(usdtPair.token0Price.times(usdtWeight));
-    } else {
-      return ZERO_BD;
-    }
-  } else if (busdPair !== null) {
-    return busdPair.token1Price;
-  } else if (usdtPair !== null) {
-    return usdtPair.token0Price;
+  if (usdcPair !== null) {
+    return usdcPair.token1Price;
   } else {
     return ZERO_BD;
   }
@@ -32,13 +19,9 @@ export function getMaticPriceInUSD(): BigDecimal {
 
 // token where amounts should contribute to tracked volume and liquidity
 let WHITELIST: string[] = [
-  "0xbb4cdb9cbd36b01bd1cbaebf2de08d9173bc095c", // WMATIC
-  "0xe9e7cea3dedca5984780bafc599bd69add087d56", // BUSD
-  "0x55d398326f99059ff775485246999027b3197955", // USDT
-  "0x8ac76a51cc950d9822d68b83fe1ad97b32cd580d", // USDC
-  "0x23396cf899ca06c4472205fc903bdb4de249d6fc", // UST
-  "0x7130d2a12b9bcbfae4f2634d864a1ee1ce3ead9c", // BTCB
-  "0x2170ed0880ac9a755fd29b2688956bd959f933f8", // WETH
+  "0x0d500b1d8e8ef31e21c99d1db9a6444d3adf1270", // WMATIC
+  "0x2791bca1f2de4661ed88a30c99a7a9449aa84174", // USDC
+
 ];
 
 // minimum liquidity for price to get tracked

@@ -8,7 +8,7 @@ dataSources:
     name: Lottery
     network: matic
     source:
-      address: '0xA4c02B671f6758d266c409f439AEcD2984c9a701'
+      address: '0xf4107302a50f2C34d05C2674fF5C9c40cc511363'
       abi: Lottery
       startBlock: 18675120
     mapping:

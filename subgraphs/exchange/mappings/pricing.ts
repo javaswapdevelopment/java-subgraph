@@ -4,13 +4,34 @@ import { Pair, Token, Bundle } from "../generated/schema";
 import { ZERO_BD, factoryContract, ADDRESS_ZERO, ONE_BD } from "./utils";
 
 let WMATIC_ADDRESS = "0x0d500b1d8e8ef31e21c99d1db9a6444d3adf1270";
-let USDC_WMATIC_PAIR = "0x6471155E47D2C86e9808A6BEBe203960f5e32584"; 
+let BUSD_WMATIC_PAIR = "0x0000000000000000000000000000000000000000"; // not created yet
+let USDC_WMATIC_PAIR = "0xef45e5814cc503fd3691dcd9128f4200d4e46d02"; // created block 18985428
+
+let BUSD = "0xdab529f40e671a1d4bf91361c21bf9f0c9712ab7";
+let USDT = "0xc2132d05d31c914a87c6611c10748aeb04b58e8f";
+let USDC = "0x2791bca1f2de4661ed88a30c99a7a9449aa84174";
+let UST = "0x692597b009d13c4049a947cab2239b7d6517875f";
+let WBTC = "0x1bfd67037b42cf73acf2047067bd4f2c47d9bfd6";
+let WETH = "0x7ceb23fd6bc0add59e62ac25578270cff1b9f619";
+let JAVA = "0xafc9aa5ebd7197662d869f75890f18aafeefb1f5";
 
 export function getMaticPriceInUSD(): BigDecimal {
   // fetch eth prices for each stablecoin
   let usdcPair = Pair.load(USDC_WMATIC_PAIR); // usdc is token1
+  let busdPair = Pair.load(BUSD_WMATIC_PAIR); // busd is token1
 
-  if (usdcPair !== null) {
+  if (busdPair !== null && usdcPair !== null) {
+    let totalLiquidityMATIC = busdPair.reserve0.plus(usdcPair.reserve0);
+    if (totalLiquidityMATIC.notEqual(ZERO_BD)) {
+      let busdWeight = busdPair.reserve0.div(totalLiquidityMATIC);
+      let usdcWeight = usdcPair.reserve0.div(totalLiquidityMATIC);
+      return busdPair.token1Price.times(busdWeight).plus(usdcPair.token1Price.times(usdcWeight));
+    } else {
+      return ZERO_BD;
+    }
+  } else if (busdPair !== null) {
+    return busdPair.token1Price;
+  } else if (usdcPair !== null) {
     return usdcPair.token1Price;
   } else {
     return ZERO_BD;
@@ -19,9 +40,14 @@ export function getMaticPriceInUSD(): BigDecimal {
 
 // token where amounts should contribute to tracked volume and liquidity
 let WHITELIST: string[] = [
-  "0x0d500b1d8e8ef31e21c99d1db9a6444d3adf1270", // WMATIC
-  "0x2791bca1f2de4661ed88a30c99a7a9449aa84174", // USDC
-
+  WMATIC_ADDRESS,
+  BUSD,
+  USDT,
+  USDC,
+  UST,
+  WBTC,
+  WETH,
+  JAVA
 ];
 
 // minimum liquidity for price to get tracked

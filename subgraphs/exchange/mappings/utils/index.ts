@@ -6,7 +6,7 @@ import { ERC20SymbolBytes } from "../../generated/Factory/ERC20SymbolBytes";
 import { Factory as FactoryContract } from "../../generated/templates/Pair/Factory";
 
 export let ADDRESS_ZERO = "0x0000000000000000000000000000000000000000";
-export let FACTORY_ADDRESS = "0x5E90De5C6Ef6542b29B1155669C8348f82174205";
+export let FACTORY_ADDRESS = "0x672353e4E674DDDD7319a4852e49F6E1D2aC6F18";
 
 export let ZERO_BI = BigInt.fromI32(0);
 export let ONE_BI = BigInt.fromI32(1);
@@ -31,7 +31,7 @@ export function convertTokenToDecimal(tokenAmount: BigInt, exchangeDecimals: Big
   return tokenAmount.toBigDecimal().div(exponentToBigDecimal(exchangeDecimals));
 }
 
-export function isNullMaticValue(value: string): boolean {
+export function isNullmaticValue(value: string): boolean {
   return value == "0x0000000000000000000000000000000000000000000000000000000000000001";
 }
 
@@ -44,7 +44,7 @@ export function fetchTokenSymbol(tokenAddress: Address): string {
   if (symbolResult.reverted) {
     let symbolResultBytes = contractSymbolBytes.try_symbol();
     if (!symbolResultBytes.reverted) {
-      if (!isNullMaticValue(symbolResultBytes.value.toHex())) {
+      if (!isNullmaticValue(symbolResultBytes.value.toHex())) {
         symbolValue = symbolResultBytes.value.toString();
       }
     }
@@ -63,7 +63,7 @@ export function fetchTokenName(tokenAddress: Address): string {
   if (nameResult.reverted) {
     let nameResultBytes = contractNameBytes.try_name();
     if (!nameResultBytes.reverted) {
-      if (!isNullMaticValue(nameResultBytes.value.toHex())) {
+      if (!isNullmaticValue(nameResultBytes.value.toHex())) {
         nameValue = nameResultBytes.value.toString();
       }
     }

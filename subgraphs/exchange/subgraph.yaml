@@ -1,6 +1,6 @@
 specVersion: 0.0.2
 description: JavaSwap is a decentralized protocol for automated token exchange on Polygon Network.
-repository: https://github.com/zikyfranky
+repository: https://github.com/javaswapdevelopment
 schema:
   file: ./schema.graphql
 dataSources:

@@ -114,13 +114,15 @@ type Mint @entity {
   transaction: Transaction!
   timestamp: BigInt! # need this to pull recent txns for specific token or pair
   pair: Pair!
+  token0: Token! 
+  token1: Token! 
 
   # populated from the primary Transfer event
-  to: Bytes!
+  to: String!
   liquidity: BigDecimal!
 
   # populated from the Mint event
-  sender: Bytes
+  sender: String
   amount0: BigDecimal
   amount1: BigDecimal
   logIndex: BigInt
@@ -128,7 +130,7 @@ type Mint @entity {
   amountUSD: BigDecimal
 
   # optional fee fields, if a Transfer event is fired in _mintFee
-  feeTo: Bytes
+  feeTo: String
   feeLiquidity: BigDecimal
 }
 
@@ -138,15 +140,17 @@ type Burn @entity {
   transaction: Transaction!
   timestamp: BigInt! # need this to pull recent txns for specific token or pair
   pair: Pair!
+  token0: Token!
+  token1: Token!
 
   # populated from the primary Transfer event
   liquidity: BigDecimal!
 
   # populated from the Burn event
-  sender: Bytes
+  sender: String 
   amount0: BigDecimal
   amount1: BigDecimal
-  to: Bytes
+  to: String 
   logIndex: BigInt
   # derived amount based on available prices of tokens
   amountUSD: BigDecimal
@@ -155,7 +159,7 @@ type Burn @entity {
   needsComplete: Boolean!
 
   # optional fee fields, if a Transfer event is fired in _mintFee
-  feeTo: Bytes
+  feeTo: String 
   feeLiquidity: BigDecimal
 }
 
@@ -165,15 +169,17 @@ type Swap @entity {
   transaction: Transaction!
   timestamp: BigInt! # need this to pull recent txns for specific token or pair
   pair: Pair!
+  token0: Token! 
+  token1: Token!
 
   # populated from the Swap event
-  sender: Bytes!
-  from: Bytes! # the EOA that initiated the txn
+  sender: String!
+  from: String! # the EOA that initiated the txn
   amount0In: BigDecimal!
   amount1In: BigDecimal!
   amount0Out: BigDecimal!
   amount1Out: BigDecimal!
-  to: Bytes!
+  to: String!
   logIndex: BigInt
 
   # derived info
@@ -224,7 +230,7 @@ type PairDayData @entity {
   id: ID!
 
   date: Int!
-  pairAddress: Bytes!
+  pairAddress: Pair!
   token0: Token!
   token1: Token!
 

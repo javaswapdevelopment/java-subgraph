@@ -40,7 +40,7 @@ export function updatePairDayData(event: ethereum.Event): PairDayData {
     pairDayData.date = dayStartTimestamp;
     pairDayData.token0 = pair.token0;
     pairDayData.token1 = pair.token1;
-    pairDayData.pairAddress = event.address;
+    pairDayData.pairAddress = event.address.toHex();
     pairDayData.dailyVolumeToken0 = ZERO_BD;
     pairDayData.dailyVolumeToken1 = ZERO_BD;
     pairDayData.dailyVolumeUSD = ZERO_BD;
@@ -94,7 +94,7 @@ export function updateTokenDayData(token: Token, event: ethereum.Event): TokenDa
     tokenDayData = new TokenDayData(tokenDayID);
     tokenDayData.date = dayStartTimestamp;
     tokenDayData.token = token.id;
-    tokenDayData.priceUSD = token.derivedMATIC.times(bundle.maticPrice);
+    
     tokenDayData.dailyVolumeToken = ZERO_BD;
     tokenDayData.dailyVolumeMATIC = ZERO_BD;
     tokenDayData.dailyVolumeUSD = ZERO_BD;

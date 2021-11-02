@@ -56,7 +56,9 @@ export function handleTransfer(event: Transfer): void {
       );
       mint.transaction = transaction.id;
       mint.pair = pair.id;
-      mint.to = event.params.to;
+      mint.token0 = pair.token0
+      mint.token1 = pair.token1
+      mint.to = event.params.to.toHex();
       mint.liquidity = value;
       mint.timestamp = transaction.timestamp;
       mint.transaction = transaction.id;
@@ -78,10 +80,12 @@ export function handleTransfer(event: Transfer): void {
     );
     burn.transaction = transaction.id;
     burn.pair = pair.id;
+    burn.token0 = pair.token0;
+    burn.token1 = pair.token1;
     burn.liquidity = value;
     burn.timestamp = transaction.timestamp;
-    burn.to = event.params.to;
-    burn.sender = event.params.from;
+    burn.to = event.params.to.toHex();
+    burn.sender = event.params.from.toHex();
     burn.needsComplete = true;
     burn.transaction = transaction.id;
     burn.save();
@@ -112,8 +116,9 @@ export function handleTransfer(event: Transfer): void {
         burn.transaction = transaction.id;
         burn.needsComplete = false;
         burn.pair = pair.id;
+        burn.token0 = pair.token0;
+        burn.token1 = pair.token1;
         burn.liquidity = value;
-        burn.transaction = transaction.id;
         burn.timestamp = transaction.timestamp;
       }
     } else {
@@ -121,8 +126,9 @@ export function handleTransfer(event: Transfer): void {
       burn.transaction = transaction.id;
       burn.needsComplete = false;
       burn.pair = pair.id;
+      burn.token0 = pair.token0;
+      burn.token1 = pair.token1;
       burn.liquidity = value;
-      burn.transaction = transaction.id;
       burn.timestamp = transaction.timestamp;
     }
 
@@ -268,7 +274,7 @@ export function handleMint(event: Mint): void {
   pair.save();
   java.save();
 
-  mint.sender = event.params.sender;
+  mint.sender = event.params.sender.toHex();
   mint.amount0 = token0Amount as BigDecimal;
   mint.amount1 = token1Amount as BigDecimal;
   mint.logIndex = event.logIndex;
@@ -426,15 +432,17 @@ export function handleSwap(event: Swap): void {
   // update swap event
   swap.transaction = transaction.id;
   swap.pair = pair.id;
+  swap.token0 = pair.token0;
+  swap.token1 = pair.token1;
   swap.timestamp = transaction.timestamp;
   swap.transaction = transaction.id;
-  swap.sender = event.params.sender;
+  swap.sender = event.params.sender.toHex();
   swap.amount0In = amount0In;
   swap.amount1In = amount1In;
   swap.amount0Out = amount0Out;
   swap.amount1Out = amount1Out;
-  swap.to = event.params.to;
-  swap.from = event.transaction.from;
+  swap.to = event.params.to.toHex();
+  swap.from = event.transaction.from.toHex();
   swap.logIndex = event.logIndex;
   // use the tracked amount if we have it
   swap.amountUSD = trackedAmountUSD === ZERO_BD ? derivedAmountUSD : trackedAmountUSD;

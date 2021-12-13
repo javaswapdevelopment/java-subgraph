@@ -8,9 +8,9 @@ dataSources:
     name: Lottery
     network: matic
     source:
-      address: '0xee93315856297F32aa21690fc02fE8002064C320'
+      address: '0xF2C3199F8D32A69B5447E812E6Ec8C6DB322052e'
       abi: Lottery
-      startBlock: 18675120
+      startBlock: 22466931
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.4

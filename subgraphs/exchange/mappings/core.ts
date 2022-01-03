@@ -56,8 +56,8 @@ export function handleTransfer(event: Transfer): void {
       );
       mint.transaction = transaction.id;
       mint.pair = pair.id;
-      mint.token0 = pair.token0
-      mint.token1 = pair.token1
+      mint.token0 = pair.token0;
+      mint.token1 = pair.token1;
       mint.to = event.params.to.toHex();
       mint.liquidity = value;
       mint.timestamp = transaction.timestamp;
@@ -483,7 +483,9 @@ export function handleSwap(event: Swap): void {
 
   // swap specific updating for token0
   token0DayData.dailyVolumeToken = token0DayData.dailyVolumeToken.plus(amount0Total);
-  token0DayData.dailyVolumeMATIC = token0DayData.dailyVolumeMATIC.plus(amount0Total.times(token0.derivedMATIC as BigDecimal));
+  token0DayData.dailyVolumeMATIC = token0DayData.dailyVolumeMATIC.plus(
+    amount0Total.times(token0.derivedMATIC as BigDecimal)
+  );
   token0DayData.dailyVolumeUSD = token0DayData.dailyVolumeUSD.plus(
     amount0Total.times(token0.derivedMATIC as BigDecimal).times(bundle.maticPrice)
   );
@@ -491,7 +493,9 @@ export function handleSwap(event: Swap): void {
 
   // swap specific updating
   token1DayData.dailyVolumeToken = token1DayData.dailyVolumeToken.plus(amount1Total);
-  token1DayData.dailyVolumeMATIC = token1DayData.dailyVolumeMATIC.plus(amount1Total.times(token1.derivedMATIC as BigDecimal));
+  token1DayData.dailyVolumeMATIC = token1DayData.dailyVolumeMATIC.plus(
+    amount1Total.times(token1.derivedMATIC as BigDecimal)
+  );
   token1DayData.dailyVolumeUSD = token1DayData.dailyVolumeUSD.plus(
     amount1Total.times(token1.derivedMATIC as BigDecimal).times(bundle.maticPrice)
   );

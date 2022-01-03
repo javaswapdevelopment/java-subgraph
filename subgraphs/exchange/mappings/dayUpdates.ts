@@ -94,7 +94,7 @@ export function updateTokenDayData(token: Token, event: ethereum.Event): TokenDa
     tokenDayData = new TokenDayData(tokenDayID);
     tokenDayData.date = dayStartTimestamp;
     tokenDayData.token = token.id;
-    
+
     tokenDayData.dailyVolumeToken = ZERO_BD;
     tokenDayData.dailyVolumeMATIC = ZERO_BD;
     tokenDayData.dailyVolumeUSD = ZERO_BD;

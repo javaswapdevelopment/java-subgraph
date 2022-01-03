@@ -39,16 +39,7 @@ export function getMaticPriceInUSD(): BigDecimal {
 }
 
 // token where amounts should contribute to tracked volume and liquidity
-let WHITELIST: string[] = [
-  WMATIC_ADDRESS,
-  BUSD,
-  USDT,
-  USDC,
-  UST,
-  WBTC,
-  WETH,
-  JAVA
-];
+let WHITELIST: string[] = [WMATIC_ADDRESS, BUSD, USDT, USDC, UST, WBTC, WETH, JAVA];
 
 // minimum liquidity for price to get tracked
 let MINIMUM_LIQUIDITY_THRESHOLD_MATIC = BigDecimal.fromString("10");

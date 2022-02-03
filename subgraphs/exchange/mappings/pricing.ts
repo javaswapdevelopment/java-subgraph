@@ -9,7 +9,7 @@ let USDC_WMATIC_PAIR = "0xef45e5814cc503fd3691dcd9128f4200d4e46d02"; // created 
 let USDC = "0x2791bca1f2de4661ed88a30c99a7a9449aa84174";
 let WBTC = "0x1bfd67037b42cf73acf2047067bd4f2c47d9bfd6";
 let WETH = "0x7ceb23fd6bc0add59e62ac25578270cff1b9f619";
-let JAVA = "0x4aFaE971Ac146d4028c3Ed581Eb307A1615E59Fe";
+let JAVA = "0x4afae971ac146d4028c3ed581eb307a1615e59fe";
 
 export function getMaticPriceInUSD(): BigDecimal {
   // fetch eth prices for each stablecoin

@@ -27,7 +27,7 @@ export function getMaticPriceInUSD(): BigDecimal {
 let WHITELIST: string[] = [WMATIC_ADDRESS, USDC, WBTC, WETH, JAVA, USDT];
 
 // minimum liquidity for price to get tracked
-let MINIMUM_LIQUIDITY_THRESHOLD_MATIC = BigDecimal.fromString("10");
+let MINIMUM_LIQUIDITY_THRESHOLD_MATIC = BigDecimal.fromString("1");
 
 /**
  * Search through graph to find derived MATIC per token.

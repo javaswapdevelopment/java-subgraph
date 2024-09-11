@@ -8,6 +8,6 @@
   "scripts": {
     "codegen": "graph codegen subgraph.yaml",
     "build": "graph build subgraph.yaml",
-    "deploy": "graph deploy --product hosted-service --node https://api.thegraph.com/deploy/ --ipfs https://api.thegraph.com/ipfs/ javaswapdevelopment/lottery subgraph.yaml"
+    "deploy": "graph deploy --product hosted-service --access-token 6a4940817654a3dc889561da92142e26 --deploy-key d161017618a091eb5ce4239b86729588 --studio lottery --ipfs https://api.thegraph.com/ipfs/ subgraph.yaml"
   }
 }
